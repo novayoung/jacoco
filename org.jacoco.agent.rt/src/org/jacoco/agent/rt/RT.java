@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.jacoco.agent.rt;
 
-import org.jacoco.agent.rt.internal.Agent;
+//import org.jacoco.agent.rt.internal.Agent;
 
 /**
  * Entry point to access the JaCoCo agent runtime.
@@ -30,7 +30,7 @@ public final class RT {
 	 *             if no Agent has been started yet
 	 */
 	public static IAgent getAgent() throws IllegalStateException {
-		return Agent.getInstance();
+		return null; //Agent.getInstance();
 	}
 
 }

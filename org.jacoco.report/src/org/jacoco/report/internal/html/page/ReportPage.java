@@ -149,10 +149,10 @@ public abstract class ReportPage implements ILinkable {
 	private void footer(final HTMLElement body) throws IOException {
 		final HTMLElement footer = body.div(Styles.FOOTER);
 		final HTMLElement versioninfo = footer.span(Styles.RIGHT);
-		versioninfo.text("Created with ");
-		versioninfo.a(JaCoCo.HOMEURL).text("JaCoCo");
+//		versioninfo.text("Created with ");
+//		versioninfo.a(JaCoCo.HOMEURL).text("JaCoCo");
 		versioninfo.text(" ");
-		versioninfo.text(JaCoCo.VERSION);
+//		versioninfo.text(JaCoCo.VERSION);
 		footer.text(context.getFooterText());
 	}
 

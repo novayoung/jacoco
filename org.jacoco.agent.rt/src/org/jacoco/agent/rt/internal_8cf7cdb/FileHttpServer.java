@@ -5,10 +5,10 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ class FileHttpServer implements HttpHandler {
 
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
-    private final static Map<String, String> CONTENT_TYPE_MAP = new HashMap<String, String>();
+    private final static Map<String, String> CONTENT_TYPE_MAP = new HashMap<>();
     
     static {
         CONTENT_TYPE_MAP.put("aac" , "audio/aac");
@@ -110,11 +110,12 @@ class FileHttpServer implements HttpHandler {
         int port = Integer.parseInt(System.getProperty("fileHttpServer.port", "6400"));
 
         FileHttpServer fileHttpServer = new FileHttpServer(root, port);
-        HttpServer server = null;
+        HttpServer server;
         try {
             server = HttpServer.create(new InetSocketAddress(fileHttpServer.port), 0);
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
         server.setExecutor(Executors.newCachedThreadPool());
 
@@ -143,6 +144,9 @@ class FileHttpServer implements HttpHandler {
         }
         String filePath = dir + path;
         File file = new File(filePath);
+        if (!file.exists()) {
+            return;
+        }
         if (file.isDirectory()) {
             String files = Arrays.stream(Objects.requireNonNull(file.listFiles())).map(File::getName).collect(Collectors.joining("\n"));
             if ("html".equals(queryMap.get("format"))) {
@@ -175,18 +179,22 @@ class FileHttpServer implements HttpHandler {
             contentType = CONTENT_TYPE_MAP.get(suffix);
         }
 
-        byte[] result = readFile(file);
         httpExchange.getResponseHeaders().add("Content-Type", contentType);
         if (contentType.equals(DEFAULT_CONTENT_TYPE)) {
             httpExchange.getResponseHeaders().add("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         }
-        httpExchange.sendResponseHeaders(200, result.length);
-        httpExchange.getResponseBody().write(result);
-        httpExchange.getResponseBody().close();
-    }
-
-    private byte[] readFile(File file) throws IOException {
-        return Files.readAllBytes(file.toPath());
+        httpExchange.sendResponseHeaders(200, file.length());
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            int b;
+            byte[] buffer = new byte[4096];
+            while ((b = inputStream.read(buffer)) > 0) {
+                httpExchange.getResponseBody().write(buffer, 0, b);
+            }
+            httpExchange.getResponseBody().flush();
+            httpExchange.getResponseBody().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {

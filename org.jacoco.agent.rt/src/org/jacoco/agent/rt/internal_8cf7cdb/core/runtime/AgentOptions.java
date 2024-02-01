@@ -11,9 +11,6 @@
  *
  *******************************************************************************/
 package org.jacoco.agent.rt.internal_8cf7cdb.core.runtime;
-//
-//import org.jacoco.core.runtime.CommandLineSupport;
-//import org.jacoco.core.runtime.WildcardMatcher;
 
 import static java.lang.String.format;
 
@@ -119,7 +116,7 @@ public final class AgentOptions {
 	public static final String OUTPUT = "output";
 
 	private static final Pattern OPTION_SPLIT = Pattern
-			.compile(",(?=[a-zA-Z0-9_\\-]+=)");
+			.compile(";(?=[a-zA-Z0-9_\\-]+=)");
 
 	/**
 	 * Possible values for {@link AgentOptions#OUTPUT}.
@@ -619,9 +616,9 @@ public final class AgentOptions {
 	 *            location of the JaCoCo Agent Jar
 	 * @return Quoted argument to pass to create new VM with coverage enabled
 	 */
-//	public String getQuotedVMArgument(final File agentJarFile) {
-//		return CommandLineSupport.quote(getVMArgument(agentJarFile));
-//	}
+	public String getQuotedVMArgument(final File agentJarFile) {
+		return CommandLineSupport.quote(getVMArgument(agentJarFile));
+	}
 
 	/**
 	 * Generate required quotes JVM argument based on current configuration and
@@ -635,18 +632,18 @@ public final class AgentOptions {
 	 *            location of the JaCoCo Agent Jar
 	 * @return VM command line arguments prepended with configured JaCoCo agent
 	 */
-//	public String prependVMArguments(final String arguments,
-//			final File agentJarFile) {
-//		final List<String> args = CommandLineSupport.split(arguments);
-//		final String plainAgent = format("-javaagent:%s", agentJarFile);
-//		for (final Iterator<String> i = args.iterator(); i.hasNext();) {
-//			if (i.next().startsWith(plainAgent)) {
-//				i.remove();
-//			}
-//		}
-//		args.add(0, getVMArgument(agentJarFile));
-//		return CommandLineSupport.quote(args);
-//	}
+	public String prependVMArguments(final String arguments,
+			final File agentJarFile) {
+		final List<String> args = CommandLineSupport.split(arguments);
+		final String plainAgent = format("-javaagent:%s", agentJarFile);
+		for (final Iterator<String> i = args.iterator(); i.hasNext();) {
+			if (i.next().startsWith(plainAgent)) {
+				i.remove();
+			}
+		}
+		args.add(0, getVMArgument(agentJarFile));
+		return CommandLineSupport.quote(args);
+	}
 
 	/**
 	 * Creates a string representation that can be passed to the agent via the
