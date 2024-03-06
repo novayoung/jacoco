@@ -223,10 +223,12 @@ public class ExecMergeHandler {
 					}
 					// 这里应该还要加上set数据的合并
 					while (length-- > 0) {
-						newProbes[newStartIndex] = newProbes[newStartIndex]
-								| oldProbes[oldStartIndex];
-						newStartIndex++;
-						oldStartIndex++;
+						if (newStartIndex < newProbes.length && oldStartIndex < oldProbes.length) {
+							newProbes[newStartIndex] = newProbes[newStartIndex]
+									| oldProbes[oldStartIndex];
+							newStartIndex++;
+							oldStartIndex++;
+						}
 					}
 				}
 			}
