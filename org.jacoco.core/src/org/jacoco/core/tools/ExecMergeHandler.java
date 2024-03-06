@@ -191,6 +191,9 @@ public class ExecMergeHandler {
 					MethodProbesInfo newInfo = getNewMPI(
 							newCoverage.getMethodProbesInfos(),
 							oldInfo.getMethodName());
+					if (newInfo == null) {
+						continue;
+					}
 					int length = newInfo.getEndIndex() - newInfo.getStartIndex()
 							+ 1;
 					int newStartIndex = newInfo.getStartIndex();
