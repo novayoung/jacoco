@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +17,11 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-class FileHttpServer implements HttpHandler {
+/**
+ * 仅编译
+ */
+@Deprecated
+public class FileHttpServer implements HttpHandler {
 
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
@@ -100,15 +105,26 @@ class FileHttpServer implements HttpHandler {
 
     private final int port;
 
+    private static volatile boolean running = false;
+
     FileHttpServer(String root, int port) {
         this.root = root;
         this.port = port;
     }
 
-    public static void start() {
+    public static synchronized FileHttpServer start(boolean local) {
+        if (running) {
+            return null;
+        }
+        running = true;
         String root = System.getProperty("fileHttpServer.root", "/");
+        if (root.equals("~")) {
+            root = System.getProperty("user.home");
+        }
         int port = Integer.parseInt(System.getProperty("fileHttpServer.port", "6400"));
-
+        if (local) {
+            port = tryPort(port);
+        }
         FileHttpServer fileHttpServer = new FileHttpServer(root, port);
         HttpServer server;
         try {
@@ -121,6 +137,11 @@ class FileHttpServer implements HttpHandler {
 
         server.createContext("/", fileHttpServer);
         server.start();
+        return fileHttpServer;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     @Override
@@ -197,7 +218,24 @@ class FileHttpServer implements HttpHandler {
         }
     }
 
-    public static void main(String[] args) {
-        start();
+    public static int tryPort(int port) {
+        for (int i = 1; i <= 10; i++) {
+            if (isUsing(port)) {
+                port = port + 1;
+                continue;
+            }
+            return port;
+        }
+        return port;
+    }
+
+    public static boolean isUsing(int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress("127.0.0.1", port), 1000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+        // ignore
     }
 }
