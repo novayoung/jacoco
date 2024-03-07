@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Deprecated
 public class LocalApiServer implements HttpHandler {
 
-    private static final String BASE_PACKAGE = "com" + File.separator + "intramirror"; //todo
+    private static final String BASE_PACKAGE = "com" + File.separator + "test"; //todo
 
     private final String root;
 
