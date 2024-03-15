@@ -38,11 +38,12 @@ public final class PreMain {
     }
 
     private static void startServer(AgentOptions agentOptions) {
-        String isLocal = System.getProperty("coverage.local");
-        FileHttpServer fileHttpServer = FileHttpServer.start(isLocal != null);
+        String localEnabled = System.getProperty("coverage.local.enabled");
+        boolean isLocal = "true".equalsIgnoreCase(localEnabled);
+        FileHttpServer fileHttpServer = FileHttpServer.start(isLocal);
         System.setProperty("eureka.instance.metadata-map.coveragePort", agentOptions.getPort() + "");
         System.setProperty("eureka.instance.metadata-map.coverageFileHttpServerPort", fileHttpServer.getPort() + "");
-        if (isLocal != null) {
+        if (isLocal) {
             LocalApiServer localApiServer = LocalApiServer.start(fileHttpServer.getPort(), agentOptions.getPort());
             if (localApiServer != null) {
                 System.setProperty("eureka.instance.metadata-map.coverageLocalApiServerPort", localApiServer.getPort() + "");
